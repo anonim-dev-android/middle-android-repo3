@@ -91,7 +91,11 @@ class TaskViewModel(
                 .distinctUntilChanged()
                 .onStart { _state.value = TaskState.Loading }
                 .catch { e -> _state.value = TaskState.Error(e.message ?: "Ошибка загрузки") }
-                .collect { tasks -> _state.value = TaskState.Loaded(tasks) }
+                .collect { tasks ->
+                    _state.value = TaskState.Loaded(tasks)
+                    // [Задание 4] ставим таймер на удаление выполненных при загрузке данных "с нуля"
+                    tasks.filter { it.isDone }.forEach { reduce(TaskAction.UpdateTaskStatus(it.id, true)) }
+                }
         }
     }
 }
